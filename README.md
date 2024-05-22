@@ -50,28 +50,50 @@ npm run dev # for run the server
 
 ## `User API Routes:`
 
-## Register User
+## Create Admin
 
 - **Method: `POST`**
-- **Endpoint:** `/api/register`
+- **Endpoint:** `/user/admin`
 
 #### Request
 
 ```json
 {
-  "name": "Nazmus Sakib",
-  "email": "sakib@gmail.com",
   "password": "123456",
-  "bio": "My Bio",
-  "profession": "Developer",
-  "address": "Mirpur, Dhaka"
+  "admin": {
+    "userName": "admin",
+    "email": "admin@example.com",
+    "name": "Admin User",
+    "mobileNo": "1234567890",
+    "address": "123 Admin Street, Admin City"
+  }
+}
+```
+
+## Create Admin
+
+- **Method: `POST`**
+- **Endpoint:** `/user/customer`
+
+#### Request
+
+```json
+{
+  "password": "123456",
+  "member": {
+    "userName": "member",
+    "email": "member@example.com",
+    "name": "Member User",
+    "mobileNo": "1234567890",
+    "address": "123 Member Street, Member City"
+  }
 }
 ```
 
 ## Get User Profile
 
 - **Method: `GET`**
-- **Endpoint:** `/api/profile`
+- **Endpoint:** `/user/profile`
 
 #### Headers
 

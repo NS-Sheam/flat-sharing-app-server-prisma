@@ -5,6 +5,7 @@ import prisma from "../../utils/prisma";
 
 import bcrypt from "bcrypt";
 import { Role } from "@prisma/client";
+import { JwtPayload } from "jsonwebtoken";
 
 const createAdmin = async (payload: any) => {
   const { password, admin } = payload;
@@ -74,12 +75,107 @@ const createMember = async (payload: any) => {
   return result;
 };
 
+const updateUserInfo = async (user: JwtPayload, payload: any) => {
+  const { userName, email, ...remaining } = payload;
+  const isUserExist = await prisma.user.findUnique({
+    where: {
+      id: user.id,
+    },
+  });
+
+  const result = await prisma.$transaction(async (tx) => {
+    if (email) {
+      await tx.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          email,
+        },
+      });
+      isUserExist?.role === Role.ADMIN
+        ? await tx.admin.update({
+            where: {
+              userId: user.id,
+            },
+            data: {
+              email,
+            },
+          })
+        : await tx.member.update({
+            where: {
+              userId: user.id,
+            },
+            data: {
+              email,
+            },
+          });
+    }
+    if (userName) {
+      await tx.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          userName,
+        },
+      });
+    }
+    if (remaining) {
+      isUserExist?.role === Role.ADMIN
+        ? await tx.admin.update({
+            where: {
+              userId: user.id,
+            },
+            data: {
+              name: remaining?.name,
+              mobileNo: remaining?.mobileNo,
+              address: remaining?.address,
+            },
+          })
+        : await tx.member.update({
+            where: {
+              userId: user.id,
+            },
+            data: {
+              name: remaining?.name,
+              mobileNo: remaining?.mobileNo,
+              address: remaining?.address,
+            },
+          });
+    }
+    const updatedUser = await tx.user.findUnique({
+      where: {
+        id: user.id,
+      },
+      select: {
+        id: true,
+        userName: true,
+        email: true,
+        role: true,
+        admin: true,
+        member: true,
+      },
+    });
+    if (!updatedUser) {
+      throw new AppError(httpStatus.NOT_FOUND, "User Update failed");
+    }
+    return updatedUser;
+  });
+
+  return result;
+};
+
 const getMyProfile = async (userId: string) => {
   const user = await prisma.user.findUniqueOrThrow({
     where: {
       id: userId,
     },
-    include: {
+    select: {
+      id: true,
+      userName: true,
+      email: true,
+      role: true,
       admin: true,
       member: true,
     },
@@ -92,4 +188,5 @@ export const UserServices = {
   createAdmin,
   createMember,
   getMyProfile,
+  updateUserInfo,
 };
