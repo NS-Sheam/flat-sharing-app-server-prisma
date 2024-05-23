@@ -33,6 +33,7 @@ model Member {
   user      User      @relation(fields: [userId], references: [id])
   name      String
   email     String    @unique
+  image     String?
   mobileNo  String
   address   String?
   flat      Flat[]
@@ -49,6 +50,7 @@ model Admin {
   user      User     @relation(fields: [userId], references: [id])
   name      String
   email     String   @unique
+  image     String?
   mobileNo  String
   address   String?
   createdAt DateTime @default(now())

@@ -43,7 +43,7 @@ const createAdmin = async (payload: any) => {
 
 const createMember = async (payload: any) => {
   const { password, member } = payload;
-  const isUserExist = await prisma.user.findUnique({
+  const isUserExist = await prisma.user.findUnique({https://www.youtube.com/
     where: {
       email: member.email,
     },
