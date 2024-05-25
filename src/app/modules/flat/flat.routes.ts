@@ -10,6 +10,7 @@ router.get(
 
   FlatController.getAllFlats
 );
+router.get("/:id", FlatController.getSingleFlat);
 
 router.post("/", auth(Role.MEMBER), FlatController.addFlat);
 

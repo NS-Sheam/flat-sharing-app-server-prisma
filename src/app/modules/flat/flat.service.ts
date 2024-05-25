@@ -35,7 +35,7 @@ const addFlat = async (user: JwtPayload, payload: any) => {
 const getAllFlats = async (query: any, option: any) => {
   const { page, limit, sortBy, sortOrder, skip } = PaginationHelper.calculatePagination(option);
 
-  const { searchTerm, ...remainingFilters } = query;
+  const { searchTerm, rent, bedrooms, ...remainingFilters } = query;
 
   const andCondition: Prisma.FlatWhereInput[] = [];
   if (query.searchTerm) {
@@ -46,6 +46,20 @@ const getAllFlats = async (query: any, option: any) => {
           mode: "insensitive",
         },
       })),
+    });
+  }
+  if (query.rent) {
+    andCondition.push({
+      rent: {
+        equals: Number(query.rent),
+      },
+    });
+  }
+  if (query.bedrooms) {
+    andCondition.push({
+      bedrooms: {
+        equals: Number(query.bedrooms),
+      },
     });
   }
 

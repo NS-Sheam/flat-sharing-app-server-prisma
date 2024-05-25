@@ -6,8 +6,19 @@ import { Role } from "@prisma/client";
 
 const router = express.Router();
 
-router.post("/admin", UserControllers.createAdmin);
-router.post("/member", UserControllers.createMember);
+router.post(
+  "/admin",
+
+  UserControllers.createAdmin
+);
+router.post(
+  "/member",
+  (req, res, next) => {
+    console.log(req.body);
+    next();
+  },
+  UserControllers.createMember
+);
 router.get("/profile", auth(Role.ADMIN, Role.MEMBER), UserControllers.getMyProfile);
 router.patch("/", auth(Role.ADMIN, Role.MEMBER), UserControllers.updateUserInfo);
 
