@@ -4,6 +4,7 @@ import AppError from "../errors/AppError";
 import httpStatus from "http-status";
 import config from "../../config";
 import { Role } from "@prisma/client";
+import prisma from "../utils/prisma";
 const auth = (...roles: Role[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -17,6 +18,16 @@ const auth = (...roles: Role[]) => {
       if (!decoded) {
         throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized.");
       }
+      const isUserActive = await prisma.user.findUnique({
+        where: {
+          id: decoded.id,
+        },
+      });
+
+      if (!isUserActive) {
+        throw new AppError(httpStatus.UNAUTHORIZED, "User not found.");
+      }
+
       if (roles.length && !roles.includes(decoded.role)) {
         throw new AppError(httpStatus.FORBIDDEN, "You are not allowed to access this route.");
       }

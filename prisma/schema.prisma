@@ -21,6 +21,7 @@ model User {
   role      Role     @default(MEMBER)
   member    Member?
   admin     Admin?
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -38,6 +39,7 @@ model Member {
   address   String?
   flat      Flat[]
   request   Request[]
+  isActive  Boolean   @default(true)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
@@ -53,6 +55,7 @@ model Admin {
   image     String?
   mobileNo  String
   address   String?
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

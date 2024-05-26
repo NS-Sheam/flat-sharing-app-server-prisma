@@ -12,7 +12,9 @@ router.post(
   UserControllers.createAdmin
 );
 router.post("/member", UserControllers.createMember);
+router.get("/", auth(Role.ADMIN), UserControllers.getAllUsers);
 router.get("/profile", auth(Role.ADMIN, Role.MEMBER), UserControllers.getMyProfile);
+router.patch("/:id/status", auth(Role.ADMIN), UserControllers.updateUserStatus);
 router.patch("/", auth(Role.ADMIN, Role.MEMBER), UserControllers.updateUserInfo);
 
 export const UserRoutes = router;

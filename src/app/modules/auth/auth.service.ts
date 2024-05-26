@@ -63,6 +63,7 @@ const changePassword = async (user: JwtPayload, payload: { oldPassword: string; 
   });
 
   return {
+    success: true,
     message: "Password changed successfully",
   };
 };

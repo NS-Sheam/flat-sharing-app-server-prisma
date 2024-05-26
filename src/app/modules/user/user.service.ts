@@ -4,8 +4,9 @@ import AppError from "../../errors/AppError";
 import prisma from "../../utils/prisma";
 
 import bcrypt from "bcrypt";
-import { Role, Flat } from "@prisma/client";
+import { Role, Flat, Prisma } from "@prisma/client";
 import { JwtPayload } from "jsonwebtoken";
+import { PaginationHelper } from "../../utils/paginationHelper";
 
 const createAdmin = async (payload: any) => {
   const { password, admin } = payload;
@@ -76,8 +77,67 @@ const createMember = async (payload: any) => {
   return result;
 };
 
+const getAllUsers = async (query: Record<string, unknown>, option: any) => {
+  const userSearchableFields = ["userName", "email"];
+
+  const { page, limit, sortBy, sortOrder, skip } = PaginationHelper.calculatePagination(option);
+  const { searchTerm, ...remainingFilters } = query;
+  const andCondition: Prisma.UserWhereInput[] = [];
+  if (searchTerm) {
+    andCondition.push({
+      OR: userSearchableFields.map((field) => ({
+        [field]: {
+          contains: searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+  if (Object.keys(remainingFilters).length > 0) {
+    andCondition.push({
+      AND: Object.keys(remainingFilters).map((key) => ({
+        [key]: {
+          equals: remainingFilters[key],
+        },
+      })),
+    });
+  }
+  const whereCondition: Prisma.UserWhereInput = {
+    AND: andCondition,
+  };
+  const result = await prisma.user.findMany({
+    where: whereCondition,
+    select: {
+      id: true,
+      userName: true,
+      email: true,
+      role: true,
+      admin: true,
+      member: true,
+      isActive: true,
+    },
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
+    skip,
+    take: limit,
+  });
+  const total = await prisma.user.count({
+    where: whereCondition,
+  });
+  return {
+    meta: {
+      total,
+      page,
+      limit,
+    },
+    data: result,
+  };
+};
+
 const updateUserInfo = async (user: JwtPayload, payload: any) => {
   const { userName, email, ...remaining } = payload;
+
   const isUserExist = await prisma.user.findUnique({
     where: {
       id: user.id,
@@ -122,6 +182,7 @@ const updateUserInfo = async (user: JwtPayload, payload: any) => {
         },
       });
     }
+
     if (remaining) {
       isUserExist?.role === Role.ADMIN
         ? await tx.admin.update({
@@ -132,6 +193,7 @@ const updateUserInfo = async (user: JwtPayload, payload: any) => {
               name: remaining?.name,
               mobileNo: remaining?.mobileNo,
               address: remaining?.address,
+              image: remaining?.image,
             },
           })
         : await tx.member.update({
@@ -142,6 +204,7 @@ const updateUserInfo = async (user: JwtPayload, payload: any) => {
               name: remaining?.name,
               mobileNo: remaining?.mobileNo,
               address: remaining?.address,
+              image: remaining?.image,
             },
           });
     }
@@ -156,6 +219,7 @@ const updateUserInfo = async (user: JwtPayload, payload: any) => {
         role: true,
         admin: true,
         member: true,
+        isActive: true,
       },
     });
     if (!updatedUser) {
@@ -166,7 +230,20 @@ const updateUserInfo = async (user: JwtPayload, payload: any) => {
 
   return result;
 };
+const updateUserStatus = async (userId: string, payload: boolean) => {
+  console.log(userId, payload);
 
+  const result = await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      isActive: payload,
+    },
+  });
+
+  return result;
+};
 const getMyProfile = async (userId: string) => {
   const user = await prisma.user.findUniqueOrThrow({
     where: {
@@ -197,6 +274,8 @@ const getMyProfile = async (userId: string) => {
 export const UserServices = {
   createAdmin,
   createMember,
+  getAllUsers,
   getMyProfile,
   updateUserInfo,
+  updateUserStatus,
 };
