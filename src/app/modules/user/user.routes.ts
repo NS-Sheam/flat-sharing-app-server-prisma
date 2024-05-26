@@ -11,14 +11,7 @@ router.post(
 
   UserControllers.createAdmin
 );
-router.post(
-  "/member",
-  (req, res, next) => {
-    console.log(req.body);
-    next();
-  },
-  UserControllers.createMember
-);
+router.post("/member", UserControllers.createMember);
 router.get("/profile", auth(Role.ADMIN, Role.MEMBER), UserControllers.getMyProfile);
 router.patch("/", auth(Role.ADMIN, Role.MEMBER), UserControllers.updateUserInfo);
 

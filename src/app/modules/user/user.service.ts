@@ -4,7 +4,7 @@ import AppError from "../../errors/AppError";
 import prisma from "../../utils/prisma";
 
 import bcrypt from "bcrypt";
-import { Role } from "@prisma/client";
+import { Role, Flat } from "@prisma/client";
 import { JwtPayload } from "jsonwebtoken";
 
 const createAdmin = async (payload: any) => {
@@ -68,6 +68,7 @@ const createMember = async (payload: any) => {
         email: member.email,
         mobileNo: member.mobileNo,
         address: member.address,
+        image: member?.image,
       },
     });
     return createMember;
@@ -177,7 +178,11 @@ const getMyProfile = async (userId: string) => {
       email: true,
       role: true,
       admin: true,
-      member: true,
+      member: {
+        include: {
+          flat: true,
+        },
+      },
     },
   });
 
