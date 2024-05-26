@@ -181,6 +181,11 @@ const getMyProfile = async (userId: string) => {
       member: {
         include: {
           flat: true,
+          request: {
+            include: {
+              flat: true,
+            },
+          },
         },
       },
     },

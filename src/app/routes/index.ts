@@ -20,7 +20,7 @@ const routes = [
     route: FlatRoutes,
   },
   {
-    path: "/flat-share",
+    path: "/flat-request",
     route: FlatShareRequestRoutes,
   },
 ];
