@@ -35,6 +35,7 @@ const createAdmin = async (payload: any) => {
         email: admin.email,
         mobileNo: admin.mobileNo,
         address: admin.address,
+        image: admin?.image,
       },
     });
     return createAdmin;
@@ -82,6 +83,7 @@ const getAllUsers = async (query: Record<string, unknown>, option: any) => {
 
   const { page, limit, sortBy, sortOrder, skip } = PaginationHelper.calculatePagination(option);
   const { searchTerm, ...remainingFilters } = query;
+
   const andCondition: Prisma.UserWhereInput[] = [];
   if (searchTerm) {
     andCondition.push({
@@ -231,8 +233,6 @@ const updateUserInfo = async (user: JwtPayload, payload: any) => {
   return result;
 };
 const updateUserStatus = async (userId: string, payload: boolean) => {
-  console.log(userId, payload);
-
   const result = await prisma.user.update({
     where: {
       id: userId,

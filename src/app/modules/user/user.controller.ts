@@ -35,7 +35,7 @@ const getMyProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 const getAllUsers = catchAsync(async (req: Request, res: Response) => {
-  const filteredQuery = pick(req.query, ["role"]);
+  const filteredQuery = pick(req.query, ["searchTerm", "role"]);
   const options = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
 
   const result = await UserServices.getAllUsers(filteredQuery, options);
